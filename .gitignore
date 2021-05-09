@@ -1,6 +1,11 @@
 # Spotify 2.0 project specific
 /Archive
-
+gameplan.doc
+/data/raw_data/my_spotify_jsons
+.DS_Store
+data/.DS_Store
+data/ml_data/.DS_Store
+project_plan.doc
 
 
 # Byte-compiled / optimized / DLL files
