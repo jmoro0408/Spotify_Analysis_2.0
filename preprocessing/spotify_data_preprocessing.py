@@ -26,36 +26,45 @@ streams_list = [
 
 streams = pd.concat(streams_list, ignore_index=True, sort=False)
 
-streams = pd.json_normalize(streams) #This is a really handy way of converting dict keys to column names
+streams = pd.json_normalize(
+    streams
+)  # This is a really handy way of converting dict keys to column names
 
 del spotify_data
 del streams_list
 
-class CleanDataFrame():
+
+class CleanDataFrame:
     def __init__(self, dataframe):
         self.dataframe = dataframe
 
     def remove_unknowns(self):
-        dataframe = self.dataframe
-        dataframe_clean = dataframe[~dataframe["artistName"].str.contains("Unknown Artist")]
-        dataframe_clean = dataframe[~dataframe["trackName"].str.contains("Unknown Track")]
-        return dataframe_clean
+        self.dataframe = self.dataframe[
+            ~self.dataframe["artistName"].str.contains("Unknown Artist")
+        ]
+        self.dataframe = self.dataframe[
+            ~self.dataframe["trackName"].str.contains("Unknown Track")
+        ]
+        return self
+
+    def convert_datetime(self):
+        self.dataframe["endTime"] = pd.to_datetime(
+            self.dataframe["endTime"], format="%Y-%m-%d %H:%M"
+        )
+        self.dataframe["Date"] = pd.to_datetime(self.dataframe["endTime"].dt.date)
+        self.dataframe["Time"] = self.dataframe["endTime"].dt.time
+        self.dataframe["Minutes Played"] = self.dataframe["msPlayed"].divide(60000)
+        return self
+
+    # def remove_duplicates(self): #Need to add a functoin that adds up any duplicates together
+
+    def return_df(
+        self,
+    ):  # need to add this at the end to return the df instead of a CleanDataFrame object
+        return self.dataframe
+
 
 clean_data = CleanDataFrame(streams)
+streams = clean_data.remove_unknowns().convert_datetime().return_df()
 
-streams = clean_data.remove_unknowns()
-
-
-
-
-#streams = streams[~streams["artistName"].str.contains("Unknown Artist")]
-
-
-
-
-
-
-
-
-
-
+print(streams.info())
