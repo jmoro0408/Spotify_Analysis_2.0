@@ -17,7 +17,7 @@ streams_pickle_file = r"/Users/James/Documents/Python/Machine Learning Projects/
 streams_total = pd.read_pickle(streams_pickle_file)
 
 
-streams_total = streams_total[:10]  # only getting the first 100 songs for now
+# streams_total = streams_total[:10]  # only getting the first 100 songs for now
 
 
 def build_df(dataframe):
