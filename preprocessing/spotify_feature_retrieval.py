@@ -107,7 +107,9 @@ def grab_features(dataframe):
     dataframe = dataframe.reset_index().drop(["index"], axis=1)
     dataframe = pd.concat([dataframe, features_df], axis=1)
     dataframe.drop(["features_json"], axis=1, inplace=True)
-    assert dataframe["trackId"].iloc[6] == dataframe["id"].iloc[6]
+    assert (
+        dataframe["trackId"].iloc[6] == dataframe["id"].iloc[6]
+    ), "track IDs do not match"
     del temp_list, features_df
     end = time.time()
     print(
