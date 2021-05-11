@@ -17,6 +17,30 @@ streams_pickle_file = r"/Users/James/Documents/Python/Machine Learning Projects/
 streams_total = pd.read_pickle(streams_pickle_file)
 
 
+streams_total = streams_total[:10]  # only getting the first 100 songs for now
+
+
+def build_df(dataframe):
+    dataframe["trackId"] = np.nan
+    features_list = [
+        "danceability",
+        "energy",
+        "key",
+        "loudness",
+        "mode",
+        "speechiness",
+        "acousticness",
+        "instrumentalness",
+        "liveness",
+        "valence",
+        "tempo",
+    ]
+    for feature in features_list:
+        dataframe[feature] = np.nan
+
+    return dataframe, features_list
+
+
 def get_track_id(artist, track):
     track_id_dict = sp.search(q="artist:" + artist + " track:" + track, type="track")
     try:
@@ -26,54 +50,23 @@ def get_track_id(artist, track):
     return track_id
 
 
-streams_total["trackId"] = np.nan
-test_df = streams_total.copy()
-test_df = test_df[60:85]
-
-
 def assign_ids(dataframe=streams_total):
     count = 0
     for artist_name, track_name in zip(dataframe["artistName"], dataframe["trackName"]):
         dataframe["trackId"].iloc[count] = get_track_id(artist_name, track_name)
-        print(f"gettids id's: {count} of {len(dataframe)} completed")
+        print(f"getting ids id's: {count+1} of {len(dataframe)} completed")
         count += 1
     return dataframe
-
-
-if streams_total["trackId"].count() == 0:
-    assign_ids(test_df)
 
 
 def get_features(id):
     return sp.audio_features([id])
 
 
-features_list = [
-    "danceability",
-    "energy",
-    "key",
-    "loudness",
-    "mode",
-    "speechiness",
-    "acousticness",
-    "instrumentalness",
-    "liveness",
-    "valence",
-    "tempo",
-]
-for feature in features_list:
-    streams_total[feature] = np.nan
-    test_df[feature] = np.nan
-
-
-failed_songs = {}
-
-
-def assign_features(
-    dataframe=streams_total, features=features_list, failed_song_dict=failed_songs
-):
+def assign_features(dataframe, features):
     count = 0
-
+    failed_songs = {}
+    print("Getting song features")
     for id_ in tqdm(dataframe["trackId"]):
         try:
             for feature in features:
@@ -83,16 +76,23 @@ def assign_features(
         except TypeError:
             for feature in features_list:
                 dataframe[feature].iloc[count] = np.nan
-            failed_song_dict["artistName"] = dataframe["artistName"].iloc[count]
-            failed_song_dict["trackName"] = dataframe["trackName"].iloc[count]
+            failed_songs["artistName"] = dataframe["artistName"].iloc[count]
+            failed_songs["trackName"] = dataframe["trackName"].iloc[count]
             count += 1
-    print(f"{len(failed_song_dict)-1} songs failed")
+    print(f"{len(failed_songs)-1} songs failed")
+    return dataframe, failed_songs
 
 
-assign_features(test_df)
+if __name__ == "__main__":
+    streams_total, features_list = build_df(streams_total)
+    streams_total = assign_ids(streams_total)
+    streams_total, failed_songs = assign_features(
+        dataframe=streams_total, features=features_list
+    )
 
-print(failed_songs)
+    print(failed_songs)
+    print(streams_total.head())
 
 current_directory = Path(__file__).resolve().parent
 pickle_name = "streams_total_features_pickle.pkl"
-test_df.to_pickle(Path(current_directory / pickle_name))
+streams_total.to_pickle(Path(current_directory / pickle_name))
