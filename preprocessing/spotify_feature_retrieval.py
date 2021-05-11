@@ -95,8 +95,12 @@ def assign_features(dataframe, features):
 
 
 def grab_features(dataframe):
+    tqdm.pandas()
     start = time.time()
-    dataframe["features_json"] = dataframe["trackId"].apply(get_features)
+    print("Getting song features..")
+    dataframe["features_json"] = dataframe["trackId"].progress_apply(
+        get_features
+    )  # progress apply allows for tqdm progress bar
     dataframe.dropna(axis=0, subset=["trackId"], inplace=True)
     temp_list = [pd.json_normalize(x) for x in dataframe["features_json"]]
     features_df = pd.concat(x for x in temp_list).reset_index().drop(["index"], axis=1)
