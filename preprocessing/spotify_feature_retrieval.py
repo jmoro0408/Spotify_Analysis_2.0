@@ -18,7 +18,7 @@ streams_pickle_file = r"/Users/James/Documents/Python/Machine Learning Projects/
 streams_total = pd.read_pickle(streams_pickle_file)
 
 
-streams_total = streams_total[:10]  # only getting the first 100 songs for now
+streams_total = streams_total[50:60]  # only getting the first 100 songs for now
 
 
 def build_df(dataframe):
@@ -47,7 +47,7 @@ def get_track_id(artist, track):
     try:
         track_id = track_id_dict["tracks"]["items"][0]["id"]
     except IndexError:
-        track_id = "track id not available"
+        track_id = np.nan
     return track_id
 
 
@@ -61,7 +61,10 @@ def assign_ids(dataframe=streams_total):  # TODO Convert this to .apply as well.
 
 
 def get_features(id):
-    return sp.audio_features([id])
+    try:
+        return sp.audio_features([id])
+    except AttributeError:
+        return np.nan
 
 
 def assign_features(dataframe, features):
@@ -94,11 +97,13 @@ def assign_features(dataframe, features):
 def grab_features(dataframe):
     start = time.time()
     dataframe["features_json"] = dataframe["trackId"].apply(get_features)
+    dataframe.dropna(axis=0, subset=["trackId"], inplace=True)
     temp_list = [pd.json_normalize(x) for x in dataframe["features_json"]]
     features_df = pd.concat(x for x in temp_list).reset_index().drop(["index"], axis=1)
     dataframe = dataframe.reset_index().drop(["index"], axis=1)
     dataframe = pd.concat([dataframe, features_df], axis=1)
     dataframe.drop(["features_json"], axis=1, inplace=True)
+    assert dataframe["trackId"].iloc[6] == dataframe["id"].iloc[6]
     del temp_list, features_df
     end = time.time()
     print(
