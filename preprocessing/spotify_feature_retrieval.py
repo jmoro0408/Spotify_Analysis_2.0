@@ -10,6 +10,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import numpy as np
 from tqdm import tqdm
+import time
 
 # Setting up and reading pickles
 sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
@@ -17,28 +18,28 @@ streams_pickle_file = r"/Users/James/Documents/Python/Machine Learning Projects/
 streams_total = pd.read_pickle(streams_pickle_file)
 
 
-# streams_total = streams_total[:10]  # only getting the first 100 songs for now
+streams_total = streams_total[:10]  # only getting the first 100 songs for now
 
 
 def build_df(dataframe):
     dataframe["trackId"] = np.nan
-    features_list = [
-        "danceability",
-        "energy",
-        "key",
-        "loudness",
-        "mode",
-        "speechiness",
-        "acousticness",
-        "instrumentalness",
-        "liveness",
-        "valence",
-        "tempo",
-    ]
-    for feature in features_list:
-        dataframe[feature] = np.nan
+    # features_list = [
+    #     "danceability",
+    #     "energy",
+    #     "key",
+    #     "loudness",
+    #     "mode",
+    #     "speechiness",
+    #     "acousticness",
+    #     "instrumentalness",
+    #     "liveness",
+    #     "valence",
+    #     "tempo",
+    # ]
+    # for feature in features_list:
+    #     dataframe[feature] = np.nan
 
-    return dataframe, features_list
+    return dataframe
 
 
 def get_track_id(artist, track):
@@ -50,11 +51,11 @@ def get_track_id(artist, track):
     return track_id
 
 
-def assign_ids(dataframe=streams_total):
+def assign_ids(dataframe=streams_total):  # TODO Convert this to .apply as well.
     count = 0
     for artist_name, track_name in zip(dataframe["artistName"], dataframe["trackName"]):
         dataframe["trackId"].iloc[count] = get_track_id(artist_name, track_name)
-        print(f"getting ids id's: {count+1} of {len(dataframe)} completed")
+        print(f"getting id's: {count+1} of {len(dataframe)} completed")
         count += 1
     return dataframe
 
@@ -64,6 +65,11 @@ def get_features(id):
 
 
 def assign_features(dataframe, features):
+    """
+    This was my first attempt at assigning features, but looping through a dataframe is horribly slow. For 9000 songs this took almost 3 hrs.
+    The .apply method below is 3x faster
+    """
+    start = time.time()
     count = 0
     failed_songs = {}
     print("Getting song features")
@@ -79,20 +85,34 @@ def assign_features(dataframe, features):
             failed_songs["artistName"] = dataframe["artistName"].iloc[count]
             failed_songs["trackName"] = dataframe["trackName"].iloc[count]
             count += 1
-    print(f"{len(failed_songs)-1} songs failed")
+    # print(f"{len(failed_songs)-1} songs failed")
+    end = time.time()
+    print(f"for loop took {end - start} seconds")
     return dataframe, failed_songs
 
 
-if __name__ == "__main__":
-    streams_total, features_list = build_df(streams_total)
-    streams_total = assign_ids(streams_total)
-    streams_total, failed_songs = assign_features(
-        dataframe=streams_total, features=features_list
+def grab_features(dataframe):
+    start = time.time()
+    dataframe["features_json"] = dataframe["trackId"].apply(get_features)
+    temp_list = [pd.json_normalize(x) for x in dataframe["features_json"]]
+    features_df = pd.concat(x for x in temp_list).reset_index().drop(["index"], axis=1)
+    dataframe = dataframe.reset_index().drop(["index"], axis=1)
+    dataframe = pd.concat([dataframe, features_df], axis=1)
+    dataframe.drop(["features_json"], axis=1, inplace=True)
+    del temp_list, features_df
+    end = time.time()
+    print(
+        f".apply took {round((end - start),3)} seconds for {len(dataframe)} songs, around {round((end-start) / (len(dataframe)), 3)} seconds per song"
     )
+    return dataframe
 
-    print(failed_songs)
+
+if __name__ == "__main__":
+    streams_total = build_df(streams_total)
+    streams_total = assign_ids(streams_total)
+    streams_total = grab_features(streams_total)
     print(streams_total.head())
 
 current_directory = Path(__file__).resolve().parent
-pickle_name = "streams_total_features_pickle.pkl"
+pickle_name = "test_features_pickle.pkl"
 streams_total.to_pickle(Path(current_directory / pickle_name))
