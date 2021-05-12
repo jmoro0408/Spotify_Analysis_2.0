@@ -23,4 +23,5 @@ def add_play_count(dataframe=streams_features):
 
 streams_features = convert_duration(streams_features)
 streams_features = add_play_count(streams_features)
-print(streams_features.sort_values(by="playCount", ascending=False)[:10])
+# print(streams_features.sort_values(by="playCount", ascending=False)[:10])
+print(streams_features.info())

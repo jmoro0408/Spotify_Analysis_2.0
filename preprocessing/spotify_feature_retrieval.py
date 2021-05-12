@@ -19,7 +19,7 @@ tqdm.pandas()
 sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 streams_pickle_file = r"/Users/James/Documents/Python/Machine Learning Projects/Spotify_Listening_Analysis/Spotify 2.0/preprocessing/pickles/my_streams_pickle.pkl"
 streams_total = pd.read_pickle(streams_pickle_file)
-# streams_total = streams_total[0:90]  # only getting the first 10 songs for testing
+# streams_total = streams_total[0:10]  # only getting the first 10 songs for testing
 
 
 def build_df(dataframe):
@@ -37,11 +37,14 @@ def get_track_id(artist, track):
 
 
 def assign_ids(dataframe=streams_total):
+    start = time.time()
     print("Getting song ids..")
     dataframe["trackId"] = dataframe.progress_apply(
         lambda x: get_track_id(x["artistName"], x["trackName"]),
         axis=1,
     )
+    end = time.time()
+    print(f"id's complete: {round((end - start),3)} seconds")
     return dataframe
 
 
@@ -107,7 +110,6 @@ if __name__ == "__main__":
     streams_total = build_df(streams_total)
     streams_total = assign_ids(streams_total)
     streams_total = grab_features(streams_total)
-    # print(streams_total.head())
 
 current_directory = Path(__file__).resolve().parent
 pickle_name = "my_features.pkl"
