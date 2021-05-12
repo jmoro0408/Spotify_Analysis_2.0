@@ -9,15 +9,17 @@ from pathlib import Path
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import numpy as np
-from tqdm import tqdm
 import time
 import random
+from tqdm import tqdm
+
+tqdm.pandas()
 
 # Setting up and reading pickles
 sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 streams_pickle_file = r"/Users/James/Documents/Python/Machine Learning Projects/Spotify_Listening_Analysis/Spotify 2.0/preprocessing/pickles/my_streams_pickle.pkl"
 streams_total = pd.read_pickle(streams_pickle_file)
-streams_total = streams_total[0:90]  # only getting the first 10 songs for testing
+# streams_total = streams_total[0:90]  # only getting the first 10 songs for testing
 
 
 def build_df(dataframe):
@@ -35,10 +37,10 @@ def get_track_id(artist, track):
 
 
 def assign_ids(dataframe=streams_total):
-    tqdm.pandas()
     print("Getting song ids..")
     dataframe["trackId"] = dataframe.progress_apply(
-        lambda x: get_track_id(x["artistName"], x["trackName"]), axis=1
+        lambda x: get_track_id(x["artistName"], x["trackName"]),
+        axis=1,
     )
     return dataframe
 
@@ -78,7 +80,6 @@ def assign_features(dataframe, features):
 
 
 def grab_features(dataframe):
-    tqdm.pandas()
     start = time.time()
     print("Getting song features..")
     dataframe["features_json"] = dataframe["trackId"].progress_apply(
