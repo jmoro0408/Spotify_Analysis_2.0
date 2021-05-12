@@ -106,5 +106,5 @@ streams_total = streams_total.drop_duplicates(subset=["trackName"]).drop(
 )
 
 current_directory = Path(__file__).resolve().parent
-pickle_name = "streams_total_pickle.pkl"
-streams_total.to_pickle(Path(current_directory / pickle_name))
+pickle_name = "my_streams_pickle.pkl"
+streams_total.to_pickle(Path(current_directory / "pickles" / pickle_name))
