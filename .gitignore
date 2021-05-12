@@ -6,6 +6,7 @@ gameplan.doc
 data/.DS_Store
 data/ml_data/.DS_Store
 project_plan.doc
+.vscode/
 
 
 # Byte-compiled / optimized / DLL files

@@ -11,6 +11,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import numpy as np
 from tqdm import tqdm
 import time
+import random
 
 # Setting up and reading pickles
 sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
@@ -18,27 +19,11 @@ streams_pickle_file = r"/Users/James/Documents/Python/Machine Learning Projects/
 streams_total = pd.read_pickle(streams_pickle_file)
 
 
-streams_total = streams_total[50:60]  # only getting the first 100 songs for now
+streams_total = streams_total[0:20]  # only getting the first 10 songs for testing
 
 
 def build_df(dataframe):
     dataframe["trackId"] = np.nan
-    # features_list = [
-    #     "danceability",
-    #     "energy",
-    #     "key",
-    #     "loudness",
-    #     "mode",
-    #     "speechiness",
-    #     "acousticness",
-    #     "instrumentalness",
-    #     "liveness",
-    #     "valence",
-    #     "tempo",
-    # ]
-    # for feature in features_list:
-    #     dataframe[feature] = np.nan
-
     return dataframe
 
 
@@ -51,12 +36,12 @@ def get_track_id(artist, track):
     return track_id
 
 
-def assign_ids(dataframe=streams_total):  # TODO Convert this to .apply as well.
-    count = 0
-    for artist_name, track_name in zip(dataframe["artistName"], dataframe["trackName"]):
-        dataframe["trackId"].iloc[count] = get_track_id(artist_name, track_name)
-        print(f"getting id's: {count+1} of {len(dataframe)} completed")
-        count += 1
+def assign_ids(dataframe=streams_total):
+    tqdm.pandas()
+    print("Getting song ids..")
+    dataframe["trackId"] = dataframe.progress_apply(
+        lambda x: get_track_id(x["artistName"], x["trackName"]), axis=1
+    )
     return dataframe
 
 
@@ -107,8 +92,9 @@ def grab_features(dataframe):
     dataframe = dataframe.reset_index().drop(["index"], axis=1)
     dataframe = pd.concat([dataframe, features_df], axis=1)
     dataframe.drop(["features_json"], axis=1, inplace=True)
+    index_check = random.randint(0, len(dataframe))
     assert (
-        dataframe["trackId"].iloc[6] == dataframe["id"].iloc[6]
+        dataframe["trackId"].iloc[index_check] == dataframe["id"].iloc[index_check]
     ), "track IDs do not match"
     del temp_list, features_df
     end = time.time()
