@@ -17,7 +17,7 @@ import random
 sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 streams_pickle_file = r"/Users/James/Documents/Python/Machine Learning Projects/Spotify_Listening_Analysis/Spotify 2.0/preprocessing/pickles/my_streams_pickle.pkl"
 streams_total = pd.read_pickle(streams_pickle_file)
-streams_total = streams_total[0:10]  # only getting the first 10 songs for testing
+streams_total = streams_total[0:90]  # only getting the first 10 songs for testing
 
 
 def build_df(dataframe):
