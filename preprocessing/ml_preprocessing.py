@@ -23,5 +23,10 @@ def add_play_count(dataframe=streams_features):
 
 streams_features = convert_duration(streams_features)
 streams_features = add_play_count(streams_features)
-# print(streams_features.sort_values(by="playCount", ascending=False)[:10])
-print(streams_features.info())
+
+streams_features = streams_features[
+    (streams_features["artistName"] != "John Mayer")
+    & (streams_features["trackName"] != "On The Way Home")
+]  # this one song has an incorrect duration and is returning a 30+ play count, definitely something not right
+
+print(streams_features.sort_values(by="duration", ascending=True)[:10])
