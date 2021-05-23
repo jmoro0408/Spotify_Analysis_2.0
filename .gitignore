@@ -7,6 +7,8 @@ data/.DS_Store
 data/ml_data/.DS_Store
 project_plan.doc
 .vscode/
+/preprocessing/spotify_training_record.xlsx
+
 
 
 # Byte-compiled / optimized / DLL files
