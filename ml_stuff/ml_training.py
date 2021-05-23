@@ -106,6 +106,7 @@ model_params = {
     "output_activation": "relu",
     # "loss":keras.losses.Huber(),
     "initializer": tf.keras.initializers.HeNormal(),
+    "regulizer": tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01),
 }
 
 reduce_lr = keras.callbacks.ReduceLROnPlateau(
@@ -123,18 +124,19 @@ model = keras.models.Sequential(
             activation=model_params["hidden_activation"],
             input_shape=X_train.shape[1:],
             kernel_initializer=model_params["initializer"],
+            kernel_regularizer=model_params["regulizer"],
         ),
-        # keras.layers.Dense(40, activation=model_params["hidden_activation"]),
-        # keras.layers.Dense(30, activation=model_params["hidden_activation"]),
-        # keras.layers.Dense(30, activation=model_params["hidden_activation"],kernel_initializer=model_params["initializer"]),
         keras.layers.Dense(
             10,
             activation=model_params["hidden_activation"],
             kernel_initializer=model_params["initializer"],
+            kernel_regularizer=model_params["regulizer"],
         ),
         keras.layers.Dense(1, activation=model_params["output_activation"]),
     ]
 )
+
+model.compile(loss=model_params["loss"], optimizer=model_params["optimizer"])
 
 model.compile(loss=model_params["loss"], optimizer=model_params["optimizer"])
 
