@@ -14,7 +14,11 @@ from my_data_spotify_feature_retrieval import (
     grab_features,
 )
 
-sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+sp = spotipy.Spotify(
+    client_credentials_manager=SpotifyClientCredentials(),
+    requests_timeout=50,
+    retries=20,
+)
 rollingstones500_file = r"/Users/James/Documents/Python/Machine Learning Projects/Spotify_Listening_Analysis/Spotify 2.0/preprocessing/pickles/rollingstones_csv.pkl"
 stones = pd.read_pickle(rollingstones500_file)
 
@@ -93,4 +97,4 @@ print(song_df[:20])
 
 current_directory = Path(__file__).resolve().parent
 pickle_name = "rolling_stones_features.pkl"
-song_df.to_pickle(Path(current_directory / "pickles" / pickle_name))
+# song_df.to_pickle(Path(current_directory / "pickles" / pickle_name))

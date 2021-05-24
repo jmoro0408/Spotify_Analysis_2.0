@@ -12,11 +12,17 @@ import numpy as np
 import time
 import random
 from tqdm import tqdm
+from requests.exceptions import ReadTimeout
 
 tqdm.pandas()
 
+
 # Setting up and reading pickles
-sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+sp = spotipy.Spotify(
+    client_credentials_manager=SpotifyClientCredentials(),
+    requests_timeout=10,
+    retries=10,
+)
 streams_pickle_file = r"/Users/James/Documents/Python/Machine Learning Projects/Spotify_Listening_Analysis/Spotify 2.0/preprocessing/pickles/my_streams_pickle.pkl"
 streams_total = pd.read_pickle(streams_pickle_file)
 # streams_total = streams_total[0:10]  # only getting the first 10 songs for testing
