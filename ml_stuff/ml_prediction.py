@@ -53,6 +53,7 @@ for count, track in enumerate(X):
     predictions["predicted_playcount"].append(model.predict(track))
     if count % 100 == 0:
         print(f"{count} of {len(X)}")
+print("Done!")
 
 predictions_df = pd.DataFrame(predictions)
 predictions_df["predicted_playcount"] = predictions_df["predicted_playcount"].astype(
