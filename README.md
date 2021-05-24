@@ -1,4 +1,5 @@
-## Spotify Analysis 2.0
+# Spotify Analysis 2.0
 
-This project will use my Spotify listening history combined with the spotipy library to gather features from the music I've listened to recently. 
+This is my second attempt at creating a project to analyse my Spotify listeneing history, and use the Spotify API to develop a machin e learning algorithm that will predit how much I will isten to any inputted song. 
+
 
