@@ -18,13 +18,13 @@ streams_features_raw = pd.read_pickle(streams_features_file)
 streams_features = streams_features_raw.copy()
 
 
-def convert_duration(dataframe=streams_features):
+def convert_duration(dataframe):
     dataframe["duration"] = dataframe["duration_ms"].divide(60000)
     dataframe.drop("duration_ms", axis=1, inplace=True)
     return dataframe
 
 
-def add_play_count(dataframe=streams_features):
+def add_play_count(dataframe):
     dataframe["playCount"] = dataframe["minutesTotal"] / dataframe["duration"]
     return dataframe
 
@@ -59,7 +59,7 @@ def plot_hist(model):
 def save_model():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_name = "trained_model.h5"
-    model.save(os.path.join(current_dir, model_name))
+    return model.save(os.path.join(current_dir, model_name))
 
 
 columns_to_drop = ["type", "id", "uri", "track_href", "analysis_url", "time_signature"]
