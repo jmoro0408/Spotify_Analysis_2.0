@@ -47,7 +47,7 @@ def plot_loss(model_history, exp=False, save=False):
         fig = plt.gca()
         save_dir = os.getcwd()
         name = "loss_plot.png"
-        plt.savefig(os.path.join(save_dir, name))
+        plt.savefig(os.path.join(save_dir, name), facecolor="w")
     plt.show()
 
 
