@@ -157,7 +157,13 @@ A few highlights:
 
     According to my NN the song I would have liked most is a Black Sabbath song. Whilst not completely unreasonable, it definitely wouldn't be my top pick. What's even stranger is a couple of Brian Eno songs coming in at no.3 and no.5. This is very unusal and I would never normally listen to Brian Eno..nothing personal Brian.  
 
+<img src="https://raw.githubusercontent.com/jmoro0408/Spotify_Analysis_2.0/main/ml_stuff/postprocessing/top5_predicted_plays.png" width = "500">
+
+
+
 2. After digging a little deeper it appears the algorithm is far too conservative. It ranks every song between 0.76 - 1.05 plays, which means there are no songs I would either love or hate. 
+
+<img src="https://raw.githubusercontent.com/jmoro0408/Spotify_Analysis_2.0/main/ml_stuff/postprocessing/prediction_histplot.png" width = "500">
 
 # Recap
 This was certainly a fun project and I learned a lot about data preparation, tensorflow and choosing model parameters that work well. 
