@@ -163,7 +163,7 @@ A few highlights:
 
 2. After digging a little deeper it appears the algorithm is far too conservative. It ranks every song between 0.76 - 1.05 plays, which means there are no songs I would either love or hate. 
 
-<img src="https://raw.githubusercontent.com/jmoro0408/Spotify_Analysis_2.0/main/ml_stuff/postprocessing/prediction_histplot.png" width = "500">
+<img src="https://raw.githubusercontent.com/jmoro0408/Spotify_Analysis_2.0/main/ml_stuff/postprocessing/prediction_histplot.png" width = "400">
 
 # Recap
 This was certainly a fun project and I learned a lot about data preparation, tensorflow and choosing model parameters that work well. 
