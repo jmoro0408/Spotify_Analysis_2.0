@@ -29,7 +29,7 @@ def add_play_count(dataframe):
     return dataframe
 
 
-def plot_loss(model_history, exp=False):
+def plot_loss(model_history, exp=False, save=False):
     if exp:
         plt.plot(pd.DataFrame(np.exp(model_history.history["loss"])), label="loss")
         plt.plot(
@@ -38,16 +38,17 @@ def plot_loss(model_history, exp=False):
     else:
         plt.plot(pd.DataFrame(model_history.history["loss"]), label="loss")
         plt.plot(pd.DataFrame(model_history.history["val_loss"]), label="val_loss")
-    fig = plt.gcf()
     plt.grid(True)
     # plt.gca().set_ylim(0, 10)
     plt.xlabel("Epoch")
     plt.ylabel("Loss (MAE)")
     plt.legend()
+    if save:
+        fig = plt.gca()
+        save_dir = os.getcwd()
+        name = "loss_plot.png"
+        plt.savefig(os.path.join(save_dir, name))
     plt.show()
-    my_path = os.path.dirname(os.path.abspath(__file__))
-    my_file = "loss_plot.png"
-    fig.savefig(os.path.join(my_path, my_file))
 
 
 def plot_hist(model):
@@ -119,24 +120,26 @@ early_stopping = tf.keras.callbacks.EarlyStopping(
 
 model = keras.models.Sequential(
     [
+        keras.layers.InputLayer(input_shape=X_train.shape[1:], name="Input_Layer"),
         keras.layers.Dense(
             30,
             activation=model_params["hidden_activation"],
-            input_shape=X_train.shape[1:],
             kernel_initializer=model_params["initializer"],
             kernel_regularizer=model_params["regulizer"],
+            name="Hidden_Layer1",
         ),
         keras.layers.Dense(
             10,
             activation=model_params["hidden_activation"],
             kernel_initializer=model_params["initializer"],
             kernel_regularizer=model_params["regulizer"],
+            name="Hidden_Layer2",
         ),
-        keras.layers.Dense(1, activation=model_params["output_activation"]),
+        keras.layers.Dense(
+            1, activation=model_params["output_activation"], name="Output_Layer"
+        ),
     ]
 )
-
-model.compile(loss=model_params["loss"], optimizer=model_params["optimizer"])
 
 model.compile(loss=model_params["loss"], optimizer=model_params["optimizer"])
 

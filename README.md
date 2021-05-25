@@ -112,8 +112,13 @@ I chose a Mean absolute error metric to determine how close to the actual play c
 
 A few other notes:
 - A simple model with only two layers and (30,10) neurons each performed just as well (even better - less overfitting) than more complicated/deeper models. So I stuck with that. 
+
+<img src="https://raw.githubusercontent.com/jmoro0408/Spotify_Analysis_2.0/main/ml_stuff/training/model_network.png" height = "350">
+
+
+
 - I played around with a few hyperparameters - learning rate, batch size, initializers and l1/l2 regularizers, however found that changes to these had negligible effect on the loss when compared with the changes from formatting the input data correctly. (i.e capping plays and scaling features)
-- I used an early stopping callback to prevent overfitting, and allow me to input an arbitrarily large number of epochs to train on (250)
+- I used an early stopping callback to prevent overfitting, and allowed me to input an arbitrarily large number of epochs to train on (250)
 
 The other features of the algorithm used can be found [in the notebook][trainingnotebook]. 
 
