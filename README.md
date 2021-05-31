@@ -175,7 +175,7 @@ I think the best way to improve this would be to just gather more data. My compl
 
 # Future Project Plans
 - Request more data from Spotify (another 12 months worth) and combine to increase the size of my data set. 
-- Tweak the algorithm so it is not as conservative and provides more outgoing results (gathering more data will likely help with this). 
+- Add a "temperature" variable to allow me to control how conservative the algorithm is (gathering more data will also likely help with this). 
 - I would like to add the Rolling Stones Top 500 songs (perhaps with Spotify features) as a Kaggle Dataset for others to play around with, but first need to confirm which albums are missing, and also any issues/legal implications with publishing Spotify feature data. 
 
 
