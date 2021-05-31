@@ -13,9 +13,10 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow import keras
 
-streams_features_file = r"/Users/James/Documents/Python/Machine Learning Projects/Spotify_Listening_Analysis/Spotify 2.0/preprocessing/pickles/my_features.pkl"
+streams_features_file = r"/Users/James/Documents/Python/MachineLearningProjects/Spotify_Listening_Analysis/Spotify 2.0/preprocessing/pickles/my_features.pkl"
 streams_features_raw = pd.read_pickle(streams_features_file)
 streams_features = streams_features_raw.copy()
+model_file = r"/Users/James/Documents/Python/MachineLearningProjects/Spotify_Listening_Analysis/Spotify 2.0/ml_stuff/trained_model.h5"
 
 
 def convert_duration(dataframe):
@@ -158,3 +159,8 @@ plot_loss(history, exp=False)
 model.evaluate(x=X_test, y=y_test, verbose=1, batch_size=16)
 
 save_model()
+
+
+# model = keras.models.load_model(model_file)
+
+print(model.evaluate(X_test, y_test, batch_size=16))
