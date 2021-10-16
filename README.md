@@ -1,8 +1,7 @@
 # Spotify Analysis
 
-**Version 2.0.0**
 
-This is my second attempt at creating a project to analyze my Spotify listening history, and use the Spotify API to develop a machine learning algorithm that will predict how much I will listen to any inputted song. 
+Project to analyze my Spotify listening history, and use the Spotify API to develop a machine learning algorithm that will predict how much I will listen to any inputted song. 
 
 This README file is a short description of how the project was undertaken and the steps involved. 
 
