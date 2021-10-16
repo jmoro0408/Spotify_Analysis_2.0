@@ -1,4 +1,6 @@
 # Spotify 2.0 project specific
+Roadmap.vsdx
+/Notes
 /Archive
 gameplan.doc
 /data/raw_data/my_spotify_jsons
@@ -9,6 +11,7 @@ project_plan.doc
 .vscode/
 /preprocessing/spotify_training_record.xlsx
 /github_screenshots
+/MyData
 
 
 
