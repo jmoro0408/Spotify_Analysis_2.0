@@ -1,5 +1,13 @@
+import sys
+
+sys.path.insert(
+    0,
+    r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData",
+)
+
 import pandas as pd
 from pathlib import Path
+from my_data_preprocessing import save_dataframe
 
 
 RS500_DATA_PATH = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\Data\rollingstones500.csv"
@@ -24,23 +32,6 @@ def get_csv_data(CSV_path):
 def clean_dataframe(pandas_dataframe, columns_to_drop):
     clean_df = pandas_dataframe.drop(columns_to_drop, axis=1)
     return clean_df
-
-
-def save_dataframe(cleaned_dataframe, save_directory, filename):
-    """
-    Saves the cleaned dataframe as a pickle file 
-
-    Parameters:
-    cleaned_dataframe (dataframe): pandas dataframe object to be saved
-    save_directory (string): folder directory of where cleaned dataframe .pkl is to be saved
-    filename (string): name of .pkl file to be saved
-
-    Returns:
-    saved_pickle (.pkl file): .pkl file of dataframe, saved in user submitted save directory, with chosen filename
-    """
-
-    _save_directory = Path(save_directory, filename + ".pkl")
-    return cleaned_dataframe.to_pickle(_save_directory)
 
 
 if __name__ == "__main__":

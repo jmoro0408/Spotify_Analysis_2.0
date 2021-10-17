@@ -1,29 +1,34 @@
-from numpy.lib.type_check import nan_to_num
-import pandas as pd
-from pathlib import Path
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-import numpy as np
-import time
-import random
-from tqdm import tqdm
-from my_data_spotify_feature_retrieval import (
-    get_track_id,
-    assign_ids,
-    get_features,
-    grab_features,
-)
+import sys
 
-sp = spotipy.Spotify(
-    client_credentials_manager=SpotifyClientCredentials(),
-    requests_timeout=50,
-    retries=20,
+sys.path.insert(
+    0,
+    r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData",
 )
-rollingstones500_file = r"/Users/James/Documents/Python/Machine Learning Projects/Spotify_Listening_Analysis/Spotify 2.0/preprocessing/pickles/rollingstones_csv.pkl"
-stones = pd.read_pickle(rollingstones500_file)
+import pandas as pd
+import os
+from my_data_spotify_feature_retrieval import assign_ids, grab_features, sp
+from my_data_preprocessing import save_dataframe
+from tqdm import tqdm
+from dotenv import load_dotenv, find_dotenv
+
+
+SPOTIPY_CLIENT_ID = os.environ.get("client_id")
+SPOTIPY_CLIENT_SECRET = os.environ.get("client_secret")
+RS500_PKL = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_RS500\RS500.pkl"
+SAVE_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_RS500"
 
 
 def get_album_id(artist, album):
+    """
+    Returns the spotify album ID for a given album and artist
+
+    Parameters:
+    artist (string): Artist to whom the album belongs to
+    album (String): name of the album to return ID for
+
+    Returns:
+    album_id (string): Spotify ID of the album
+    """
     query = "artist:" + artist + " album:" + album
     album = sp.search(q=query, type="album")
     try:
@@ -33,13 +38,21 @@ def get_album_id(artist, album):
     return album_id
 
 
-def get_album_tracks(artist, album):
+def get_album_tracks(artist, album):  # TODO: Vectorize this function
     """
-    Should speed this up by using a .apply method...but there's only a total of 500 albums so it's not a huge time issue
+    Creates a dictionary of all the tracks on any album with the album title as the dict key
+    Does this by first finding the album id using get_album_id function 
+
+    Parameters:
+    artist (string): Artist to whom the album belongs to
+    album (String): name of the album to return tracks for
+
+    Returns:
+    album_dict (dict): Dictionary containing album name and tracks
     """
 
     album_id = get_album_id(artist, album)
-    if album_id == None:
+    if album_id is None:
         pass
     else:
         album_songs = []
@@ -55,8 +68,19 @@ def get_album_tracks(artist, album):
 
 
 def get_rollingstones_tracks(df):
-    list_of_dict_tracks = []
+    """
+    applies get_album_tracks function to RS500 df, creating a list of dictionaries with 
+    key: album, value: [tracks]
+    
+    Parameters:
+    df (pandas dataframe): Dartaframe to grab tracks of, should contain "Artist" and "Album" columns
+
+    Return:
+    list_of_dict_tracks (list): list of dictionaries with key: album, value: [tracks]
+    """
     print("Getting album ids..")
+
+    list_of_dict_tracks = []
     for album, artist in tqdm(zip(df["Album"], df["Artist"]), total=len(df)):
         current_album_tracks = get_album_tracks(artist, album)
         list_of_dict_tracks.append(current_album_tracks)
@@ -65,11 +89,18 @@ def get_rollingstones_tracks(df):
 
 
 def build_stones_df():
+    """
+    Create a pandas dataframe from the get_rollingstones_tracks function. 
+    The df has the correct struture to begin grabbing track IDs and track features
+
+    Parameters:
+    None
+
+    Returns:
+    song_df (pandas dataframe): dataframe containing RS500 tracks
+    """
     song_df = pd.DataFrame(columns=["artistName", "albumName", "trackName"])
     for i in range(len(list_of_dict_tracks)):
-        artist = list_of_dict_tracks[i]["artistName"]
-        album = list_of_dict_tracks[i]["albumName"]
-        tracks = list_of_dict_tracks[i]["trackName"]
         df = pd.DataFrame(
             [list_of_dict_tracks[i]], columns=list_of_dict_tracks[0].keys()
         )
@@ -82,19 +113,13 @@ def build_stones_df():
     return song_df
 
 
-# test_stones = stones.copy()[:15]
-# test_album = stones["Album"].iloc[0]
-# test_artist = stones["Artist"].iloc[0]
-# test_tracks = get_album_tracks(test_artist, test_album)
-
 if __name__ == "__main__":
+    load_dotenv(find_dotenv())
+    tqdm.pandas()  # required to use tqdm progress bar with pandas .apply
+    stones = pd.read_pickle(RS500_PKL)
+    stones = stones[:2]
     list_of_dict_tracks = get_rollingstones_tracks(stones)
-    song_df = build_stones_df()
-    song_df = assign_ids(song_df)
-    song_df = grab_features(song_df)
-
-print(song_df[:20])
-
-current_directory = Path(__file__).resolve().parent
-pickle_name = "rolling_stones_features.pkl"
-# song_df.to_pickle(Path(current_directory / "pickles" / pickle_name))
+    RS500_song_df = build_stones_df()
+    RS500_song_df = assign_ids(RS500_song_df)
+    RS500_song_df = grab_features(RS500_song_df)
+    save_dataframe(RS500_song_df, SAVE_DIR, "RS500_features")

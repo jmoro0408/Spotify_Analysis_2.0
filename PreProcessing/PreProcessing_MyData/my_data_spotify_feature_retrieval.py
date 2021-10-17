@@ -15,6 +15,12 @@ SPOTIPY_CLIENT_SECRET = os.environ.get("client_secret")
 STREAMS_PICKLE_FILE = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData\listening_history.pkl"
 SAVE_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData"
 
+sp = spotipy.Spotify(
+    client_credentials_manager=SpotifyClientCredentials(),
+    requests_timeout=10,
+    retries=10,
+)
+
 
 def build_df(dataframe):
     """
@@ -128,11 +134,7 @@ def grab_features(dataframe):
 if __name__ == "__main__":
     load_dotenv(find_dotenv())
     tqdm.pandas()  # required to use tqdm progress bar with pandas .apply
-    sp = spotipy.Spotify(
-        client_credentials_manager=SpotifyClientCredentials(),
-        requests_timeout=10,
-        retries=10,
-    )
+
     streams_total = pd.read_pickle(STREAMS_PICKLE_FILE)
     streams_total = streams_total[0:10]  # only getting the first 10 songs for testing
     streams_total = build_df(streams_total)
