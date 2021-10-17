@@ -5,15 +5,11 @@ sys.path.insert(
     r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData",
 )
 import pandas as pd
-import os
 from my_data_spotify_feature_retrieval import assign_ids, grab_features, sp
 from my_data_preprocessing import save_dataframe
 from tqdm import tqdm
-from dotenv import load_dotenv, find_dotenv
 
 
-SPOTIPY_CLIENT_ID = os.environ.get("client_id")
-SPOTIPY_CLIENT_SECRET = os.environ.get("client_secret")
 RS500_PKL = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_RS500\RS500.pkl"
 SAVE_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_RS500"
 
@@ -114,7 +110,6 @@ def build_stones_df():
 
 
 if __name__ == "__main__":
-    load_dotenv(find_dotenv())
     tqdm.pandas()  # required to use tqdm progress bar with pandas .apply
     stones = pd.read_pickle(RS500_PKL)
     stones = stones[:2]
