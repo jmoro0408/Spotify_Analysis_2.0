@@ -12,8 +12,8 @@ from my_data_preprocessing import save_dataframe
 
 SPOTIPY_CLIENT_ID = os.environ.get("client_id")
 SPOTIPY_CLIENT_SECRET = os.environ.get("client_secret")
-STREAMS_PICKLE_FILE = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\2. PreProcessing\PreProcessing_MyData\listening_history.pkl"
-SAVE_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\2. PreProcessing\PreProcessing_MyData"
+STREAMS_PICKLE_FILE = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData\listening_history.pkl"
+SAVE_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData"
 
 
 def build_df(dataframe):
