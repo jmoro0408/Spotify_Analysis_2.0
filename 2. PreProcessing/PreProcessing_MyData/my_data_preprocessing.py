@@ -3,6 +3,44 @@ import pandas as pd
 from pathlib import Path
 from collections import Counter
 
+SPOTIFY_DATA_FOLDER_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\1. Data\MyData"
+
+
+def gather_mydata(folder_dir):
+    """
+    Returns consolidated dataframe of listening history from Spotify .json files
+
+    Parameters:
+    folder_dir (string): folder directory location of .json Spotify files
+    
+    Returns:
+
+    spotify_data_df (pandas dataframe): Dataframe object containing combined and consolidated listening history
+    """
+
+    _folder_dir = Path(folder_dir)  # converting to pathlib object for OS-agnostic manipulation
+    _jsons = Path(_folder_dir).glob("*.json")  # Finding all files in the json folder that end with .json -> generator object
+    _json_list = [file.name for file in _jsons]  # retrieving filename of .json files only
+    _streaming_list = [s for s in _json_list if "StreamingHistory" in s] #grabbing .jsons for streaming history only
+    _spotify_data = {key: [] for key in _streaming_list} # Creating empty dict with json filenames as keys
+
+    for spotify_json in _streaming_list:
+        json_filepath = (Path(_folder_dir, spotify_json))    
+        read_data = pd.read_json(json_filepath, typ="series", encoding="utf8")
+        _spotify_data[spotify_json].append(read_data)
+
+    streams_list = [key[0] for key in _spotify_data.values()]
+
+
+    spotify_data_df = pd.concat(streams_list, ignore_index=True, sort=False)
+    spotify_data_df = pd.json_normalize(spotify_data_df)  # This is a really handy way of converting dict keys to column names
+   
+    return spotify_data_df
+streams_df = gather_mydata(SPOTIFY_DATA_FOLDER_DIR)
+
+
+"""
+
 my_spotify_jsons = r"/Users/James/Documents/Python/Machine Learning Projects/Spotify_Listening_Analysis/Spotify 2.0/data/raw_data/my_spotify_jsons"
 list_of_jsons = []
 jsons = Path(my_spotify_jsons).glob(
@@ -108,3 +146,5 @@ streams_total = streams_total.drop_duplicates(subset=["trackName"]).drop(
 current_directory = Path(__file__).resolve().parent
 pickle_name = "my_streams_pickle.pkl"
 streams_total.to_pickle(Path(current_directory / "pickles" / pickle_name))
+
+"""
