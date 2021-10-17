@@ -110,11 +110,18 @@ def build_stones_df():
 
 
 if __name__ == "__main__":
-    tqdm.pandas()  # required to use tqdm progress bar with pandas .apply
-    stones = pd.read_pickle(RS500_PKL)
-    stones = stones[:2]
-    list_of_dict_tracks = get_rollingstones_tracks(stones)
-    RS500_song_df = build_stones_df()
-    RS500_song_df = assign_ids(RS500_song_df)
-    RS500_song_df = grab_features(RS500_song_df)
-    save_dataframe(RS500_song_df, SAVE_DIR, "RS500_features")
+    print(
+        "This file will retrieve all song features, this may take a while. Do you want to continue? [Y/N]"
+    )
+    user_check = input()
+    if user_check.upper() == "Y":
+        tqdm.pandas()  # required to use tqdm progress bar with pandas .apply
+        stones = pd.read_pickle(RS500_PKL)
+        stones = stones[:2]
+        list_of_dict_tracks = get_rollingstones_tracks(stones)
+        RS500_song_df = build_stones_df()
+        RS500_song_df = assign_ids(RS500_song_df)
+        RS500_song_df = grab_features(RS500_song_df)
+        save_dataframe(RS500_song_df, SAVE_DIR, "RS500_features")
+    else:
+        pass

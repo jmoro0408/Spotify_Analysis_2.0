@@ -132,13 +132,19 @@ def grab_features(dataframe):
 
 
 if __name__ == "__main__":
-    load_dotenv(find_dotenv())
-    tqdm.pandas()  # required to use tqdm progress bar with pandas .apply
+    print(
+        "This file will retrieve all song features, this may take a while. Do you want to continue? [Y/N]"
+    )
+    user_check = input()
+    if user_check.upper() == "Y":
+        load_dotenv(find_dotenv())
+        tqdm.pandas()  # required to use tqdm progress bar with pandas .apply
 
-    streams_total = pd.read_pickle(STREAMS_PICKLE_FILE)
-    streams_total = streams_total[0:10]  # only getting the first 10 songs for testing
-    streams_total = build_df(streams_total)
-    streams_total = assign_ids(streams_total)
-    streams_total = grab_features(streams_total)
+        streams_total = pd.read_pickle(STREAMS_PICKLE_FILE)
+        streams_total = build_df(streams_total)
+        streams_total = assign_ids(streams_total)
+        streams_total = grab_features(streams_total)
 
-    save_dataframe(streams_total, SAVE_DIR, "my_songs_features")
+        save_dataframe(streams_total, SAVE_DIR, "my_songs_features")
+    else:
+        pass
