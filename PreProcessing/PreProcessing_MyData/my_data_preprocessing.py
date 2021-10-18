@@ -60,7 +60,7 @@ class CleanDataFrame:
         )
         self.dataframe["minutesPlayed"] = self.dataframe["msPlayed"].divide(60000)
 
-        self.dataframe.drop(["endTime", "msPlayed"], axis=1, inplace=True)
+        self.dataframe.drop(["msPlayed"], axis=1, inplace=True)
 
         return self
 
@@ -156,6 +156,7 @@ if __name__ == "__main__":
         "Binaural Alpha Sinus 100 Hz - 108 Hz",
         "Cabin Sound",
         "Unknown Track",
+        "White Noise - 200 hz"
     ]  # Most of these songs are white noise I listen to on repeat, need to remove them from the df
     artists_to_remove = [
         "Unknown Artist",
