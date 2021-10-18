@@ -117,7 +117,6 @@ if __name__ == "__main__":
     if user_check.upper() == "Y":
         tqdm.pandas()  # required to use tqdm progress bar with pandas .apply
         stones = pd.read_pickle(RS500_PKL)
-        stones = stones[:2]
         list_of_dict_tracks = get_rollingstones_tracks(stones)
         RS500_song_df = build_stones_df()
         RS500_song_df = assign_ids(RS500_song_df)
