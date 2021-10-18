@@ -142,6 +142,7 @@ if __name__ == "__main__":
 
         streams_total = pd.read_pickle(STREAMS_PICKLE_FILE)
         streams_total = build_df(streams_total)
+        streams_total = streams_total[:100]
         streams_total = assign_ids(streams_total)
         streams_total = grab_features(streams_total)
 
