@@ -1,13 +1,6 @@
-import sys
-
-sys.path.insert(
-    0,
-    r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData",
-)
-
 import pandas as pd
 from pathlib import Path
-from my_data_preprocessing import save_dataframe
+from ...PreProcessing.PreProcessing_MyData.my_data_preprocessing import save_dataframe
 
 
 RS500_DATA_PATH = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\Data\rollingstones500.csv"
