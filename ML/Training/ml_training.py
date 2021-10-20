@@ -227,17 +227,28 @@ def build_keras_model(model_params: dict, X_train=X_train):
         loss=model_params.get("loss"), optimizer=model_params.get("optimizer")
     )
 
+def fit_model(model, callbacks, **kwargs):
+    """fits compiled model
 
-history = model.fit(
-    X_train,
-    y_train,
-    epochs=250,  # early stopping will kick in before 250 epochs
-    verbose=1,
-    validation_data=(X_valid, y_valid),
-    callbacks=my_callbacks,
-    batch_size=16,
-    shuffle=True,
-)
+    Args:
+        model (keras model): compiled keras model
+        callbacks (list): list of callbacks to be used
+
+    Returns:
+        history (dict): model.fit history
+    """
+    history = model.fit(
+        X_train,
+        y_train,
+        epochs=250,  # early stopping will kick in before 250 epochs
+        verbose=1,
+        validation_data=(X_valid, y_valid),
+        callbacks=callbacks,
+        batch_size=16,
+        shuffle=True,
+    )
+    return history
+
 
 plot_loss(history, exp=False)
 model.evaluate(x=X_test, y=y_test, verbose=1, batch_size=16)
