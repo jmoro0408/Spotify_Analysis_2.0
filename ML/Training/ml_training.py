@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow import keras
 
-SONG_FEATURES_PATH = r"/Users/James/Documents/Python/MachineLearningProjects/Spotify_Listening_Analysis/Spotify 2.0/preprocessing/pickles/my_features.pkl"
+SONG_FEATURES_PATH = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData\my_songs_features.pkl"
 
 
 def add_play_count(dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -25,6 +25,7 @@ def add_play_count(dataframe: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pandas dataframe: original dataframe object with additional play count column
     """
+    dataframe["duration"] = dataframe["duration_ms"] / 60000
     dataframe["playCount"] = dataframe["minutesTotal"] / dataframe["duration"]
     return dataframe
 
@@ -54,6 +55,7 @@ def plot_loss(model_history, exp: bool = False, save: bool = False):
         save_dir = os.getcwd()
         name = "loss_plot.png"
         plt.savefig(os.path.join(save_dir, name), facecolor="w")
+    plt.waitforbuttonpress()
     plt.show()
 
 
@@ -124,7 +126,7 @@ def create_sets(
     columns_to_drop: list = None,
     valid_set: bool = True,
     scale: bool = True,
-    **kwargs
+    **kwargs,
 ):
     """creates test, training, and validation sets from input dataframe
 
@@ -179,7 +181,7 @@ def define_callbacks() -> list:
     )  # reduce learning rate on validation loss plateau
 
     early_stopping = tf.keras.callbacks.EarlyStopping(
-        monitor="val_loss", patience=5, min_delta=0.001, restore_best_weights=True
+        monitor="val_loss", patience=5, min_delta=0.01, restore_best_weights=True
     )  # stop the algortihm if validation loss does not reduce below "min_delta" for "patience" epochs
 
     return [reduce_lr, early_stopping]
@@ -193,7 +195,7 @@ def build_keras_model(model_params: dict, X_train):
         X_train ([numpy array], optional): X_training set. Defaults to X_train.
 
         Returns:
-        compiled model
+         model
     """
     model = keras.models.Sequential(
         [
@@ -220,12 +222,10 @@ def build_keras_model(model_params: dict, X_train):
         ]
     )
 
-    return model.compile(
-        loss=model_params.get("loss"), optimizer=model_params.get("optimizer")
-    )
+    return model
 
 
-def fit_model(model, callbacks, **kwargs):
+def fit_model(compiled_model, callbacks, X_train, x_test, X_valid, y_valid, epochs=250):
     """fits compiled model
 
     Args:
@@ -235,10 +235,10 @@ def fit_model(model, callbacks, **kwargs):
     Returns:
         history (dict): model.fit history
     """
-    history = model.fit(
+    history = compiled_model.fit(
         X_train,
         y_train,
-        epochs=250,  # early stopping will kick in before 250 epochs
+        epochs=epochs,
         verbose=1,
         validation_data=(X_valid, y_valid),
         callbacks=callbacks,
@@ -256,7 +256,8 @@ def evaluate_model(history, X_test, y_test):
         X_test (numpy array, optional): X_test set. Defaults to X_test.
         y_test (numpy array, optional): y_test set. Defaults to y_test.
     """
-    print(model.evaluate(x=X_test, y=y_test, verbose=1, batch_size=16))
+    model_evaluation = model.evaluate(x=X_test, y=y_test, verbose=1, batch_size=16)
+    print(f"Your model has a final loss factor of {round(model_evaluation,2)}")
 
 
 if __name__ == "__main__":
@@ -307,12 +308,18 @@ if __name__ == "__main__":
             "minutesTotal",
             "trackId",
             "playCount",
+            "endTime",
         ],
     )
 
     my_callbacks = define_callbacks()
     model = build_keras_model(model_params, X_train)
-    history = fit_model(model, my_callbacks, X_valid, y_valid)
+    compiled_model = model.compile(
+        loss=model_params.get("loss"), optimizer=model_params.get("optimizer")
+    )
+    history = fit_model(
+        model, my_callbacks, X_train, X_test, X_valid, y_valid, epochs=20
+    )
 
     plot_loss(history, exp=False, save=False)
     evaluate_model(history, X_test, y_test)
