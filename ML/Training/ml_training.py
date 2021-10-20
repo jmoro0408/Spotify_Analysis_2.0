@@ -118,9 +118,6 @@ def clean_songs_df(
     return cleaned_dataframe
 
 
-#################################################### STILL TO REFACTOR ####################################################
-
-
 def create_sets(
     input_dataframe: pd.DataFrame,
     target: str,
@@ -188,7 +185,7 @@ def define_callbacks() -> list:
     return [reduce_lr, early_stopping]
 
 
-def build_keras_model(model_params: dict, X_train=X_train):
+def build_keras_model(model_params: dict, X_train):
     """function to build my keras dense neural net
 
     Args:
@@ -227,6 +224,7 @@ def build_keras_model(model_params: dict, X_train=X_train):
         loss=model_params.get("loss"), optimizer=model_params.get("optimizer")
     )
 
+
 def fit_model(model, callbacks, **kwargs):
     """fits compiled model
 
@@ -250,20 +248,18 @@ def fit_model(model, callbacks, **kwargs):
     return history
 
 
-plot_loss(history, exp=False)
-model.evaluate(x=X_test, y=y_test, verbose=1, batch_size=16)
+def evaluate_model(history, X_test, y_test):
+    """prints evulation of given model against test data for predetermined evaluation parameters
 
-save_model(model)
-
-
-# model = keras.models.load_model(model_file)
-
-print(model.evaluate(X_test, y_test, batch_size=16))
+    Args:
+        history (keras model history): model to be evaluated. Defaults to history.
+        X_test (numpy array, optional): X_test set. Defaults to X_test.
+        y_test (numpy array, optional): y_test set. Defaults to y_test.
+    """
+    print(model.evaluate(x=X_test, y=y_test, verbose=1, batch_size=16))
 
 
 if __name__ == "__main__":
-    song_features_df = pd.read_pickle(SONG_FEATURES_PATH)
-    song_features_df = add_play_count(song_features_df)
     columns_to_remove = [
         "type",
         "id",
@@ -276,23 +272,6 @@ if __name__ == "__main__":
         "John Mayer": "On The Way Home"
     }  # this song has an incorrect duration and is returning a 30+ play count
 
-    song_features_df = clean_songs_df(
-        input_dataframe=song_features_df,
-        columns_to_drop=columns_to_remove,
-        artists_tracks_to_remove=artists_tracks_to_drop,
-    )
-
-    X_train, y_train, X_test, y_test = create_sets(
-        input_dataframe=song_features_df,
-        target="playCount",
-        columns_to_drop=[
-            "artistName",
-            "trackName",
-            "minutesTotal",
-            "trackId",
-            "playCount",
-        ],
-    )
     model_params = {
         "optimizer": keras.optimizers.Adam(
             learning_rate=0.0001,
@@ -310,6 +289,32 @@ if __name__ == "__main__":
         "regulizer": tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01),
     }
 
+    song_features_df = pd.read_pickle(SONG_FEATURES_PATH)
+    song_features_df = add_play_count(song_features_df)
+    song_features_df = clean_songs_df(
+        input_dataframe=song_features_df,
+        columns_to_drop=columns_to_remove,
+        artists_tracks_to_remove=artists_tracks_to_drop,
+    )
+
+    X_train, y_train, X_test, y_test, X_valid, y_valid = create_sets(
+        input_dataframe=song_features_df,
+        target="playCount",
+        valid_set=True,
+        columns_to_drop=[
+            "artistName",
+            "trackName",
+            "minutesTotal",
+            "trackId",
+            "playCount",
+        ],
+    )
+
     my_callbacks = define_callbacks()
-    model = build_keras_model(model_params)
+    model = build_keras_model(model_params, X_train)
+    history = fit_model(model, my_callbacks, X_valid, y_valid)
+
+    plot_loss(history, exp=False, save=False)
+    evaluate_model(history, X_test, y_test)
+    save_model(model)
 
