@@ -120,70 +120,113 @@ def clean_songs_df(
 
 #################################################### STILL TO REFACTOR ####################################################
 
-X = streams_features.drop(
-    ["artistName", "trackName", "minutesTotal", "trackId", "playCount"], axis=1
-)
-y = streams_features["playCount"]
+
+def create_sets(
+    input_dataframe: pd.DataFrame,
+    target: str,
+    columns_to_drop: list = None,
+    valid_set: bool = True,
+    scale: bool = True,
+    **kwargs
+):
+    """creates test, training, and validation sets from input dataframe
+
+    Args:
+        input_dataframe (pd.DataFrame): dataframe to use for the NN
+        target (str): target variable
+        columns_to_drop (list, optional): list of any columns not required for training/prediction. Defaults to None.
+        valid_set (bool, optional): return validation set or not. Defaults to True.
+        scale (bool, optional): apply scaling to features. Defaults to True.
+
+    Returns:
+    if valid == True:
+        X_train, y_train, X_test, y_test, X_valid, y_valid [numpy arrays]: train, test, and validation sets for NN
+    if valid != True:
+        X_train, y_train, X_test, y_test [numpy arrays]: train and test sets for NN
+    """
+    if columns_to_drop is not None:
+        if (
+            target not in columns_to_drop
+        ):  # target variable should always be dropped from X array
+            columns_to_drop.append(target)
+        X = input_dataframe.drop(columns_to_drop, axis=1)
+    else:
+        X = input_dataframe.drop(target, axis=1)
+    y = input_dataframe[target]
+
+    if scale:
+        standard_scalar = StandardScaler()
+        X = standard_scalar.fit_transform(X)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.33, random_state=42, shuffle=True
+    )
+
+    if valid_set:
+        X_train, X_valid, y_train, y_valid = train_test_split(
+            X_train, y_train, test_size=0.33, random_state=42, shuffle=True
+        )
+        return X_train, y_train, X_test, y_test, X_valid, y_valid
+    else:
+        return X_train, y_train, X_test, y_test
 
 
-standard_scalar = StandardScaler()
-X = standard_scalar.fit_transform(X)
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.33, random_state=42, shuffle=True
-)
-X_train, X_valid, y_train, y_valid = train_test_split(
-    X_train, y_train, test_size=0.33, random_state=42, shuffle=True
-)
+def define_callbacks() -> list:
+    """function to hold all the callbacks I want to use
 
-model_params = {
-    "optimizer": keras.optimizers.Adam(
-        learning_rate=0.0001,
-        beta_1=0.9,
-        beta_2=0.999,
-        epsilon=1e-06,
-        amsgrad=False,
-        name="Adam",
-    ),
-    "loss": tf.keras.losses.MeanAbsoluteError(),
-    "hidden_activation": "relu",
-    "output_activation": "relu",
-    # "loss":keras.losses.Huber(),
-    "initializer": tf.keras.initializers.HeNormal(),
-    "regulizer": tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01),
-}
+    Returns:
+        list: list of callbacks to be passed into model.fit "callbacks" argument
+    """
+    reduce_lr = keras.callbacks.ReduceLROnPlateau(
+        monitor="val_loss", factor=0.05, patience=2, min_lr=0.00001
+    )  # reduce learning rate on validation loss plateau
 
-reduce_lr = keras.callbacks.ReduceLROnPlateau(
-    monitor="val_loss", factor=0.05, patience=2, min_lr=0.00001
-)
+    early_stopping = tf.keras.callbacks.EarlyStopping(
+        monitor="val_loss", patience=5, min_delta=0.001, restore_best_weights=True
+    )  # stop the algortihm if validation loss does not reduce below "min_delta" for "patience" epochs
 
-early_stopping = tf.keras.callbacks.EarlyStopping(
-    monitor="val_loss", patience=5, min_delta=0.001, restore_best_weights=True
-)
+    return [reduce_lr, early_stopping]
 
-model = keras.models.Sequential(
-    [
-        keras.layers.InputLayer(input_shape=X_train.shape[1:], name="Input_Layer"),
-        keras.layers.Dense(
-            30,
-            activation=model_params["hidden_activation"],
-            kernel_initializer=model_params["initializer"],
-            kernel_regularizer=model_params["regulizer"],
-            name="Hidden_Layer1",
-        ),
-        keras.layers.Dense(
-            10,
-            activation=model_params["hidden_activation"],
-            kernel_initializer=model_params["initializer"],
-            kernel_regularizer=model_params["regulizer"],
-            name="Hidden_Layer2",
-        ),
-        keras.layers.Dense(
-            1, activation=model_params["output_activation"], name="Output_Layer"
-        ),
-    ]
-)
 
-model.compile(loss=model_params["loss"], optimizer=model_params["optimizer"])
+def build_keras_model(model_params: dict, X_train=X_train):
+    """function to build my keras dense neural net
+
+    Args:
+        model_params (dict): dictionary of parameters to be passed to the keras.layers.Dense method
+        X_train ([numpy array], optional): X_training set. Defaults to X_train.
+
+        Returns:
+        compiled model
+    """
+    model = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=X_train.shape[1:], name="Input_Layer"),
+            keras.layers.Dense(
+                30,
+                activation=model_params.get(
+                    "hidden_activation"
+                ),  # .get is used instead of dict slicing incase key is not specified in model_params
+                kernel_initializer=model_params.get("initializer"),
+                kernel_regularizer=model_params.get("regulizer"),
+                name="Hidden_Layer1",
+            ),
+            keras.layers.Dense(
+                10,
+                activation=model_params.get("hidden_activation"),
+                kernel_initializer=model_params.get("initializer"),
+                kernel_regularizer=model_params.get("regulizer"),
+                name="Hidden_Layer2",
+            ),
+            keras.layers.Dense(
+                1, activation=model_params.get("output_activation"), name="Output_Layer"
+            ),
+        ]
+    )
+
+    return model.compile(
+        loss=model_params.get("loss"), optimizer=model_params.get("optimizer")
+    )
+
 
 history = model.fit(
     X_train,
@@ -191,7 +234,7 @@ history = model.fit(
     epochs=250,  # early stopping will kick in before 250 epochs
     verbose=1,
     validation_data=(X_valid, y_valid),
-    callbacks=[reduce_lr, early_stopping],
+    callbacks=my_callbacks,
     batch_size=16,
     shuffle=True,
 )
@@ -227,4 +270,35 @@ if __name__ == "__main__":
         columns_to_drop=columns_to_remove,
         artists_tracks_to_remove=artists_tracks_to_drop,
     )
+
+    X_train, y_train, X_test, y_test = create_sets(
+        input_dataframe=song_features_df,
+        target="playCount",
+        columns_to_drop=[
+            "artistName",
+            "trackName",
+            "minutesTotal",
+            "trackId",
+            "playCount",
+        ],
+    )
+    model_params = {
+        "optimizer": keras.optimizers.Adam(
+            learning_rate=0.0001,
+            beta_1=0.9,
+            beta_2=0.999,
+            epsilon=1e-06,
+            amsgrad=False,
+            name="Adam",
+        ),
+        "loss": tf.keras.losses.MeanAbsoluteError(),
+        "hidden_activation": "relu",
+        "output_activation": "relu",
+        # "loss":keras.losses.Huber(),
+        "initializer": tf.keras.initializers.HeNormal(),
+        "regulizer": tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01),
+    }
+
+    my_callbacks = define_callbacks()
+    model = build_keras_model(model_params)
 
