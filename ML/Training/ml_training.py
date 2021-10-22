@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow import keras
 
+
 SONG_FEATURES_PATH = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis\PreProcessing\PreProcessing_MyData\my_songs_features.pkl"
 
 
@@ -160,12 +161,12 @@ def create_sets(
         X = standard_scalar.fit_transform(X)
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.33, random_state=42, shuffle=True
+        X, y, test_size=0.2, random_state=42, shuffle=True
     )
 
     if valid_set:
         X_train, X_valid, y_train, y_valid = train_test_split(
-            X_train, y_train, test_size=0.33, random_state=42, shuffle=True
+            X_train, y_train, test_size=0.2, random_state=42, shuffle=True
         )
         return X_train, y_train, X_test, y_test, X_valid, y_valid
     else:
@@ -183,7 +184,7 @@ def define_callbacks() -> list:
     )  # reduce learning rate on validation loss plateau
 
     early_stopping = tf.keras.callbacks.EarlyStopping(
-        monitor="val_loss", patience=5, min_delta=0.01, restore_best_weights=True
+        monitor="val_loss", patience=5, min_delta=0.001, restore_best_weights=True
     )  # stop the algortihm if validation loss does not reduce below "min_delta" for "patience" epochs
 
     return [reduce_lr, early_stopping]
@@ -227,7 +228,7 @@ def build_keras_model(model_params: dict, X_train):
     return model
 
 
-def fit_model(compiled_model, callbacks, X_train, x_test, X_valid, y_valid, epochs=250):
+def fit_model(compiled_model, callbacks, X_train, X_valid, y_valid, epochs=250):
     """fits compiled model
 
     Args:
@@ -244,13 +245,13 @@ def fit_model(compiled_model, callbacks, X_train, x_test, X_valid, y_valid, epoc
         verbose=1,
         validation_data=(X_valid, y_valid),
         callbacks=callbacks,
-        batch_size=16,
+        batch_size=32,
         shuffle=True,
     )
     return history
 
 
-def evaluate_model(history, X_test, y_test):
+def evaluate_model(X_test, y_test):
     """prints evulation of given model against test data for predetermined evaluation parameters
 
     Args:
@@ -277,11 +278,11 @@ if __name__ == "__main__":
 
     model_params = {
         "optimizer": keras.optimizers.Adam(
-            learning_rate=0.0001,
+            learning_rate=0.001,
             beta_1=0.9,
             beta_2=0.999,
             epsilon=1e-06,
-            amsgrad=False,
+            amsgrad=True,
             name="Adam",
         ),
         "loss": tf.keras.losses.MeanAbsoluteError(),
@@ -319,11 +320,9 @@ if __name__ == "__main__":
     compiled_model = model.compile(
         loss=model_params.get("loss"), optimizer=model_params.get("optimizer")
     )
-    history = fit_model(
-        model, my_callbacks, X_train, X_test, X_valid, y_valid, epochs=20
-    )
+    history = fit_model(model, my_callbacks, X_train, X_valid, y_valid, epochs=250)
 
     plot_loss(history, exp=False, save=False)
-    evaluate_model(history, X_test, y_test)
+    evaluate_model(X_test, y_test)
     save_model(model)
 
