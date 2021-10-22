@@ -3,15 +3,15 @@ import pandas as pd
 from pathlib import Path
 
 
-SPOTIFY_DATA_FOLDER_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\Data\MyData"
-SAVE_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData"
+SPOTIFY_DATA_FOLDER_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis\Data\MyData"
+SAVE_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis\PreProcessing\PreProcessing_MyData"
 
 
 class CleanDataFrame:
     def __init__(self, dataframe):
         self.dataframe = dataframe
 
-    def remove_track(self, tracknames):
+    def remove_track(self, tracknames: list):
         """
         Removes any tracks passed to argument
         
@@ -28,7 +28,7 @@ class CleanDataFrame:
             ]
         return self
 
-    def remove_artist(self, artists):
+    def remove_artist(self, artists: list):
         """
         Removes any artists passed to argument
         
@@ -90,7 +90,7 @@ class CleanDataFrame:
         return self.dataframe
 
 
-def gather_mydata(folder_dir):
+def gather_mydata(folder_dir: str) -> pd.DataFrame:
     """
     Returns consolidated dataframe of listening history from Spotify .json files
 
@@ -133,7 +133,7 @@ def gather_mydata(folder_dir):
     return spotify_data_df
 
 
-def save_dataframe(cleaned_dataframe, save_directory, filename):
+def save_dataframe(cleaned_dataframe: pd.DataFrame, save_directory: str, filename:str):
     """
     Saves the cleaned dataframe as a pickle file 
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
         "Binaural Alpha Sinus 100 Hz - 108 Hz",
         "Cabin Sound",
         "Unknown Track",
-        "White Noise - 200 hz"
+        "White Noise - 200 hz",
     ]  # Most of these songs are white noise I listen to on repeat, need to remove them from the df
     artists_to_remove = [
         "Unknown Artist",

@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow import keras
 
-SONG_FEATURES_PATH = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData\my_songs_features.pkl"
+SONG_FEATURES_PATH = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis\PreProcessing\PreProcessing_MyData\my_songs_features.pkl"
 
 
 def add_play_count(dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -79,7 +79,9 @@ def save_model(model_to_save: keras.models.Sequential):
     Returns:
         saved model: keras model save object
     """
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+    current_dir = os.path.dirname(
+        os.path.abspath(__file__)
+    )  # TODO move away from os.path to pathlib.Path
     model_name = "trained_model.h5"
     return model_to_save.save(os.path.join(current_dir, model_name))
 

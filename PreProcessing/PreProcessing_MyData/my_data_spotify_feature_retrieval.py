@@ -12,8 +12,8 @@ from my_data_preprocessing import save_dataframe
 
 SPOTIPY_CLIENT_ID = os.environ.get("client_id")
 SPOTIPY_CLIENT_SECRET = os.environ.get("client_secret")
-STREAMS_PICKLE_FILE = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData\listening_history.pkl"
-SAVE_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis_2.0\PreProcessing\PreProcessing_MyData"
+STREAMS_PICKLE_FILE = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis\PreProcessing\PreProcessing_MyData\listening_history.pkl"
+SAVE_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis\PreProcessing\PreProcessing_MyData"
 
 sp = spotipy.Spotify(
     client_credentials_manager=SpotifyClientCredentials(),
@@ -22,7 +22,7 @@ sp = spotipy.Spotify(
 )
 
 
-def build_df(dataframe):
+def build_df(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
     Adds a track ID colume to dataframe for later use
 
@@ -36,7 +36,7 @@ def build_df(dataframe):
     return dataframe
 
 
-def get_track_id(artist, track):
+def get_track_id(artist: str, track: str) -> str:
     """
     Returns spotify ID for a given track by specific artist.
 
@@ -55,7 +55,7 @@ def get_track_id(artist, track):
     return track_id
 
 
-def assign_ids(dataframe):
+def assign_ids(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
     Uses the get_track_id function to assign IDs to all tracks in the givenm dataframe. 
 
@@ -75,7 +75,7 @@ def assign_ids(dataframe):
     return dataframe
 
 
-def get_features(id):
+def get_features(id: str):
     """
     Gathers audio features from Spotify for a given track ID. 
     See: https://developer.spotify.com/documentation/web-api/reference/#category-tracks for information on features
@@ -92,7 +92,7 @@ def get_features(id):
         return np.nan
 
 
-def grab_features(dataframe):
+def grab_features(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
     Attempts to assign song features using the get_features function to all songs in given dataframe. 
     This function creates a column that encompasses all features retuerned from Spotify in a json format for each track ID. 
