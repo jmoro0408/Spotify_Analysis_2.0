@@ -2,6 +2,8 @@
 import pandas as pd
 from pathlib import Path
 
+pd.options.mode.chained_assignment = None  # default='warn'
+
 
 SPOTIFY_DATA_FOLDER_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis\Data\MyData"
 SAVE_DIR = r"C:\Users\JM070903\OneDrive - Jacobs\Documents\Python\Spotify Listening Analysis\Spotify_Analysis\PreProcessing\PreProcessing_MyData"
@@ -77,9 +79,7 @@ class CleanDataFrame:
         self.dataframe["minutesTotal"] = self.dataframe.groupby(by=["trackName"])[
             "minutesPlayed"
         ].transform("sum")
-        self.dataframe.drop_duplicates(subset=["trackName"]).drop(
-            ["minutesPlayed"], axis=1
-        )
+        self.dataframe.drop_duplicates(subset=["trackName"], inplace=True)
 
         return self
 
@@ -133,7 +133,7 @@ def gather_mydata(folder_dir: str) -> pd.DataFrame:
     return spotify_data_df
 
 
-def save_dataframe(cleaned_dataframe: pd.DataFrame, save_directory: str, filename:str):
+def save_dataframe(cleaned_dataframe: pd.DataFrame, save_directory: str, filename: str):
     """
     Saves the cleaned dataframe as a pickle file 
 
