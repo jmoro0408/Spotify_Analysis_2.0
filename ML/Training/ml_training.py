@@ -245,7 +245,7 @@ def fit_model(compiled_model, callbacks, X_train, X_valid, y_valid, epochs=250):
         verbose=1,
         validation_data=(X_valid, y_valid),
         callbacks=callbacks,
-        batch_size=32,
+        batch_size=16,
         shuffle=True,
     )
     return history
@@ -320,7 +320,9 @@ if __name__ == "__main__":
     compiled_model = model.compile(
         loss=model_params.get("loss"), optimizer=model_params.get("optimizer")
     )
-    history = fit_model(model, my_callbacks, X_train, X_valid, y_valid, epochs=250)
+    history = fit_model(
+        model, my_callbacks, X_train, X_valid, y_valid, epochs=250
+    )  # Early stopping should kick in before total epochs
 
     plot_loss(history, exp=False, save=False)
     evaluate_model(X_test, y_test)
